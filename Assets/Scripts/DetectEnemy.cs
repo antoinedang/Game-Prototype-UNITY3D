@@ -6,8 +6,9 @@ public class DetectEnemy : MonoBehaviour
 {
 	Soldier soldier;
 	public int updateInterval = 10;
-    LinkedList<Collider> enemies = new LinkedList<Collider>();
 
+    [Header("DEBUG: don't change")]
+    public LinkedList<Collider> enemies = new LinkedList<Collider>();
     // Start is called before the first frame update
     void Start()
     {
@@ -28,7 +29,7 @@ public class DetectEnemy : MonoBehaviour
     void Update()
     {
     	if (Time.frameCount%updateInterval != 0) return;
-        if (soldier.retreat) soldier.StopAttacking();
+        //if (soldier.retreating) soldier.StopAttacking();
 
         if (enemies.Count > 0)
         {
@@ -39,7 +40,7 @@ public class DetectEnemy : MonoBehaviour
                 if (enemies.Count == 0 && soldier.attacking) soldier.StopAttacking();
                 return;
             }
-            if (soldier.target != enemies.First.Value.transform && !soldier.retreat) soldier.Attack(enemies.First.Value.transform);
+            if (soldier.target != enemies.First.Value.transform && !soldier.retreating) soldier.Attack(enemies.First.Value.transform);
 
         } else if (enemies.Count == 0 && soldier.attacking) soldier.StopAttacking();
     }

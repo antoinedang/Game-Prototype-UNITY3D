@@ -336,12 +336,20 @@
       <Project>{B1235EE4-71EE-C815-28F8-C3378E5ADB84}</Project>      <Name>Assembly-CSharp</Name>    </ProjectReference>
     <ProjectReference Include="PhotonUnityNetworking.Utilities.PhotonPlayer.Editor.csproj">
       <Project>{277FC3C7-29DF-52B4-138D-B30DBC7766F2}</Project>      <Name>PhotonUnityNetworking.Utilities.PhotonPlayer.Editor</Name>    </ProjectReference>
+    <ProjectReference Include="NavMeshComponentsExamplesEditor.csproj">
+      <Project>{FE40CBB5-3994-6C62-2561-BF027ADBD704}</Project>      <Name>NavMeshComponentsExamplesEditor</Name>    </ProjectReference>
     <ProjectReference Include="PhotonUnityNetworking.Utilities.csproj">
       <Project>{B8FBE01A-4163-2D79-3AE9-4AE77D599854}</Project>      <Name>PhotonUnityNetworking.Utilities</Name>    </ProjectReference>
+    <ProjectReference Include="NavMeshComponentsEditor.csproj">
+      <Project>{49290734-3EC7-384E-6D33-4A80EDB0445E}</Project>      <Name>NavMeshComponentsEditor</Name>    </ProjectReference>
     <ProjectReference Include="PhotonWebSocket.csproj">
       <Project>{D7F0263A-644A-FA9C-7990-0E17F8D66FAC}</Project>      <Name>PhotonWebSocket</Name>    </ProjectReference>
     <ProjectReference Include="PhotonRealtime.csproj">
       <Project>{B24B0393-9ACB-3983-B8A2-3BE44B49F5CF}</Project>      <Name>PhotonRealtime</Name>    </ProjectReference>
+    <ProjectReference Include="NavMeshComponents.csproj">
+      <Project>{BB824F69-494C-16A8-AB0D-C2905A3F84FD}</Project>      <Name>NavMeshComponents</Name>    </ProjectReference>
+    <ProjectReference Include="NavMeshComponentsExamples.csproj">
+      <Project>{559DEE0C-F85F-F517-E956-68C8AD370B24}</Project>      <Name>NavMeshComponentsExamples</Name>    </ProjectReference>
     <ProjectReference Include="PhotonUnityNetworking.csproj">
       <Project>{1C33235E-6AF5-3F91-B902-AEBC8AAC064B}</Project>      <Name>PhotonUnityNetworking</Name>    </ProjectReference>
     <ProjectReference Include="PhotonChat.csproj">
@@ -350,14 +358,6 @@
       <Project>{486B7CC1-9BFE-A0F8-48A7-2E4D52776543}</Project>      <Name>PhotonUnityNetworking.Utilities.Culling.Editor</Name>    </ProjectReference>
     <ProjectReference Include="PhotonUnityNetworking.Editor.csproj">
       <Project>{A87EA295-1BDC-F44D-4A58-39006C8A1A53}</Project>      <Name>PhotonUnityNetworking.Editor</Name>    </ProjectReference>
-    <ProjectReference Include="NavMeshComponentsExamplesEditor.csproj">
-      <Project>{FE40CBB5-3994-6C62-2561-BF027ADBD704}</Project>      <Name>NavMeshComponentsExamplesEditor</Name>    </ProjectReference>
-    <ProjectReference Include="NavMeshComponentsEditor.csproj">
-      <Project>{49290734-3EC7-384E-6D33-4A80EDB0445E}</Project>      <Name>NavMeshComponentsEditor</Name>    </ProjectReference>
-    <ProjectReference Include="NavMeshComponents.csproj">
-      <Project>{BB824F69-494C-16A8-AB0D-C2905A3F84FD}</Project>      <Name>NavMeshComponents</Name>    </ProjectReference>
-    <ProjectReference Include="NavMeshComponentsExamples.csproj">
-      <Project>{559DEE0C-F85F-F517-E956-68C8AD370B24}</Project>      <Name>NavMeshComponentsExamples</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

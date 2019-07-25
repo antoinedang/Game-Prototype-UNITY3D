@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class PlayerBullet : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class PlayerBullet : MonoBehaviour
 
     void Delete()
     {
-    	Destroy(gameObject);
+    	PhotonNetwork.Destroy(gameObject);
     }
 
     // Update is called once per frame

@@ -20,16 +20,16 @@ PhysicsManager:
   m_LayerCollisionMatrix: ffc0ffffffc0ffffffc0ffffffffffffffc0ffffffc0ffffffffffffffffffffc8c8ffffc8c4ffffc8d2ffffc8c1ffffc8c4ffffc8c0ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
   m_AutoSimulation: 1
   m_AutoSyncTransforms: 0
-  m_ReuseCollisionCallbacks: 0
+  m_ReuseCollisionCallbacks: 1
   m_ClothInterCollisionSettingsToggle: 0
   m_ClothGravity: {x: 0, y: -9.81, z: 0}
   m_ContactPairsMode: 0
-  m_BroadphaseType: 0
+  m_BroadphaseType: 1
   m_WorldBounds:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 250, y: 250, z: 250}
-  m_WorldSubdivisions: 2
+    m_Extent: {x: 250, y: 25, z: 250}
+  m_WorldSubdivisions: 1
   m_FrictionType: 0
   m_EnableEnhancedDeterminism: 0
-  m_EnableUnifiedHeightmaps: 1
+  m_EnableUnifiedHeightmaps: 0
   m_DefaultMaxAngluarSpeed: 7
