@@ -40,7 +40,7 @@ public class SpawnOnMouse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || (soldiersSelected && Input.GetMouseButton(1)))
         {
             soldiersSelected = false;
             for (int i = 0; i < transform.childCount; i++)
@@ -80,9 +80,9 @@ public class SpawnOnMouse : MonoBehaviour
                     GameObject newSquad = PhotonNetwork.Instantiate("Squad", transform.position, Quaternion.identity);
                     newSquad.transform.parent = transform;
                     newSquad.GetComponent<SquadAI>().checkpoints = checkpoints;
-                    newSquad.GetComponent<SquadAI>().SetDestination(hit.point);
                     newSquad.GetComponent<SquadAI>().spawner = this;
                     newSquad.GetComponent<SquadAI>().orderOfArrival = 5*agents;
+                    newSquad.GetComponent<SquadAI>().SetDestination(hit.point);
                     agents += newSquad.GetComponent<SquadAI>().size;
                 }
             }    
@@ -140,21 +140,4 @@ public class SpawnOnMouse : MonoBehaviour
         return bounds;
     }
 
-
-    [PunRPC]
-    public void EnemyGunshot(Vector3 position)
-    {
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            transform.GetChild(i).GetComponent<SquadAI>().Gunshot(position);
-        }
-    }
-
-    public void Gunshot(Vector3 shooter)
-    {
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            transform.GetChild(i).GetComponent<SquadAI>().Gunshot(shooter);
-        }
-    }
 }

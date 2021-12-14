@@ -13,7 +13,7 @@ public class Soldier : MonoBehaviourPun
     public int updateInterval = 10;
     public GameObject bullet;
     public float bulletSpeed = 100f;
-    public float marginOfError = 15f;
+    public float marginOfError = 10f;
     public Color highlightedColor;
     public Color selectedColor;
     public Color normalColor;
@@ -24,6 +24,7 @@ public class Soldier : MonoBehaviourPun
     float defaultTurnSpeed;
 
 
+
     //gunshots
     //enemyies/soldiers dying
     //soldier count
@@ -31,10 +32,10 @@ public class Soldier : MonoBehaviourPun
     //
 
     [Header("DEBUG: don't change")]
+    public bool offline = true;
     public SquadAI squad;
     public Transform target;
     public Vector3 destination;
-    public bool attacking;
     public NavMeshAgent navAgent;
     public bool highlighted = false;
     public bool selected = false;
@@ -48,10 +49,10 @@ public class Soldier : MonoBehaviourPun
     {
         render = GetComponent<Renderer>();
         photonView = GetComponent<PhotonView>();
-        transform.localScale += Random.Range(-1f,1f)*randomness*transform.localScale;
+        transform.localScale += Vector3.one*Random.Range(-1f,1f)*randomness;
 
 
-        if (!photonView.IsMine)
+        if (!photonView.IsMine && !offline)
         {
             for (int i = 0; i < componentsToEnable.Length; i++)
             {
@@ -69,27 +70,6 @@ public class Soldier : MonoBehaviourPun
         defaultTurnSpeed = navAgent.angularSpeed;
         navAgent.acceleration += Random.Range(-1f,1f)*randomness*navAgent.acceleration;
         navAgent.angularSpeed += Random.Range(-1f,1f)*randomness*navAgent.angularSpeed;
-        transform.GetChild(0).GetComponent<SphereCollider>().radius /= transform.localScale.x;
-    }
-
-    public void Attack(Transform enemy)
-    {
-        navAgent.isStopped = true;
-        squad.DetectedEnemy(enemy.position);
-    	target = enemy;
-        destination = enemy.position;
-        attacking = true;
-        navAgent.angularSpeed = turningSpeed;
-    }
-
-    public void StopAttacking()
-    {
-        target = null;
-        lastShotTime = 0f;
-        squad.LostEnemy(this);
-        attacking = false;
-        navAgent.angularSpeed = defaultTurnSpeed;
-        //continue to destination
     }
 
     void Update()
@@ -120,8 +100,8 @@ public class Soldier : MonoBehaviourPun
         if (target == null && destination != Vector3.zero)
         {
             if (navAgent.hasPath && navAgent.destination == destination) navAgent.isStopped = false;
-            else navAgent.destination = destination;
-            destination = Vector3.zero;
+            else if (navAgent.hasPath) navAgent.destination = destination;
+            else navAgent.destination = Vector3.zero;
         }
     }
 
@@ -131,11 +111,6 @@ public class Soldier : MonoBehaviourPun
 
     void Shoot()
     {
-        if (leader)
-        {
-            squad.AlertGunshot(transform.position);
-            photonView.RPC("EnemyGunshot", RpcTarget.All, transform.position);
-        }
         GameObject newBullet = PhotonNetwork.Instantiate("Bullet", transform.position, Quaternion.identity);
         newBullet.GetComponent<Rigidbody>().AddForce((target.position-transform.position).normalized*bulletSpeed);
     }

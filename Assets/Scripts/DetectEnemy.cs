@@ -29,19 +29,18 @@ public class DetectEnemy : MonoBehaviour
     void Update()
     {
     	if (Time.frameCount%updateInterval != 0) return;
-        //if (soldier.retreating) soldier.StopAttacking();
 
         if (enemies.Count > 0)
         {
             if (enemies.First.Value == null)
             {
                 enemies.RemoveFirst();
-
-                if (enemies.Count == 0 && soldier.attacking) soldier.StopAttacking();
                 return;
             }
-            if (soldier.target != enemies.First.Value.transform && !soldier.retreating) soldier.Attack(enemies.First.Value.transform);
+            if (soldier.target != enemies.First.Value.transform && !soldier.retreating) {
+                soldier.target = enemies.First.Value.transform;
+            } 
 
-        } else if (enemies.Count == 0 && soldier.attacking) soldier.StopAttacking();
+        } else soldier.target = null;
     }
 }

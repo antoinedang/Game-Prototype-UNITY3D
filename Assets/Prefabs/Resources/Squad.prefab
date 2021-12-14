@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5083967818377922260}
   - component: {fileID: 4140835859429552910}
-  m_Layer: 14
+  - component: {fileID: 82855894258704967}
+  m_Layer: 8
   m_Name: Squad
   m_TagString: Squad
   m_Icon: {fileID: 0}
@@ -40,17 +41,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 5083967818377922259}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_GeneratorAsset: {fileID: 0}
   m_Script: {fileID: 11500000, guid: c9ea17d3b85629140989084642052e93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 8
+  size: 5
   soldier: {fileID: 349939761765766699, guid: 420f187e174a9384a9e34b1713b9d8ff, type: 3}
   frameInterval: 1
   maxDistanceFromDestination: 1
   stoppingDistance: 15
   trueStoppingDistance: 5
-  maxWanderDistance: 15
+  maxWanderDistance: 20
   maxSelectedWanderDistance: 10
   AI_FindCheckpoints: 1
   AI_ExploreGunshots: 1
@@ -63,3 +63,25 @@ MonoBehaviour:
   lastDestination: {x: 0, y: 0, z: 0}
   spawner: {fileID: 0}
   checkpoints: []
+--- !u!114 &82855894258704967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5083967818377922259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 0
+  OwnershipTransfer: 0
+  ObservedComponents:
+  - {fileID: 0}
+  viewIdField: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0

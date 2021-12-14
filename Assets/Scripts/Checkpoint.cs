@@ -7,20 +7,21 @@ public class Checkpoint : MonoBehaviourPun
 {
 
 	public bool canCapture = true;
+	public float captureTime;
+	public int frameInterval = 2;
 	public Color friendlyCapturingColor;
 	public Color friendlyCapturedColor;
 	public Color enemyCapturingColor;
 	public Color enemyCapturedColor;
 	public Color defaultColor;
-	public float captureTime;
-	public int frameInterval = 2;
 	PhotonView photonView;
 
 	public int control; //-1 = enemy, 0 = neutral, 1 = friendly
 
     [Header("DEBUG: don't change")]
 	public float radius;
-	int soldiersCapturing = 0;
+	int enemies = 0;
+	int soldiers = 0;
 	Renderer render;
 	float capturingTime;
 	float enemyCapturingTime;
@@ -41,16 +42,16 @@ public class Checkpoint : MonoBehaviourPun
 
     void OnTriggerEnter(Collider coll)
     {
-    	coll.GetComponent<Soldier>().squad.EnterCheckpoint(coll.GetComponent<Soldier>(), this);
-    	if (soldiersCapturing == 0) photonView.RPC("CaptureStatus", RpcTarget.All, false);
-    	soldiersCapturing++;
+		print(coll.gameObject.name);
+		if (coll.gameObject.layer == 10) enemies++;
+		else soldiers++;
     }
 
     void OnTriggerExit(Collider coll)
     {
-    	coll.GetComponent<Soldier>().squad.ExitCheckpoint(coll.GetComponent<Soldier>());
-    	soldiersCapturing--;
-    	if (soldiersCapturing == 0) photonView.RPC("CaptureStatus", RpcTarget.All, true);
+		print(coll.gameObject.name);
+		if (coll.gameObject.layer == 10) enemies--;
+		else soldiers--;
     }
 
     void ResetFriendly()
@@ -71,27 +72,23 @@ public class Checkpoint : MonoBehaviourPun
     	firstEnemyCycle = false;
     }
 
-    [PunRPC]
-    public void CaptureStatus(bool status)
-    {
-    	canCapture = status;
-    }
-
     void Update()
     {
+		if (!canCapture) return;
     	if (Time.frameCount%frameInterval != 0) return;
-    	if (canCapture && soldiersCapturing == 0)
-    	{
-    		firstEnemyCycle = true;
-    		firstFriendlyCycle = true;
-
+		if (soldiers + enemies == 0 && control != 0) {
+			control = 0;
     		enemyCapturingTime = 0f;
     		capturingTime = 0f;
-
-    	} else if (!canCapture && soldiersCapturing == 0 && render.material.color != enemyCapturedColor) {
+    		firstEnemyCycle = false;
+    		firstFriendlyCycle = false;
+    		render.material.color = defaultColor;
+			originalColor = defaultColor;
+    	} else if (soldiers < enemies && control != -1) {
+    		if (capturingTime != 0) ResetEnemy();
+    		capturingTime = 0f;
     		enemyCapturingTime += Time.deltaTime;
 
-    		if (firstEnemyCycle) ResetEnemy();
 
     		if (enemyCapturingTime >= captureTime) {
     			render.material.color = enemyCapturedColor;
@@ -99,10 +96,11 @@ public class Checkpoint : MonoBehaviourPun
     		} else {
     			render.material.color = Color.Lerp(originalColor, enemyCapturingColor, enemyCapturingTime/captureTime);
     		}
-    	} else if (canCapture && soldiersCapturing != 0 && render.material.color != friendlyCapturedColor) {
+    	} else if (soldiers > enemies && control != 1) {
+			
+    		if (enemyCapturingTime != 0) ResetFriendly();
+    		enemyCapturingTime = 0f;
     		capturingTime += Time.deltaTime;
-
-    		if (firstFriendlyCycle) ResetFriendly();
 
     		if (capturingTime >= captureTime) {
     			render.material.color = friendlyCapturedColor;
@@ -110,16 +108,6 @@ public class Checkpoint : MonoBehaviourPun
        		} else {
     			render.material.color = Color.Lerp(originalColor, friendlyCapturingColor, capturingTime/captureTime);
        		}
-    	} else if (!canCapture && soldiersCapturing != 0) {
-    		firstEnemyCycle = true;
-    		firstFriendlyCycle = true;
-    		if (control == 1) {
-    			render.material.color = friendlyCapturedColor;
-    		} else if (control == 0) {
-    			render.material.color = defaultColor;
-    		} else {
-    			render.material.color = enemyCapturedColor;
-    		}
     	}
     }
 

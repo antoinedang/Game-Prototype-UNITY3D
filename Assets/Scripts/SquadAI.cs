@@ -7,6 +7,8 @@ using Photon.Pun;
 public class SquadAI : MonoBehaviourPun
 {
 
+    //squads move as a unit, staying within a certain distance of each other and going to the same destinations
+
 	public int size;
 	public GameObject soldier;
 	public int frameInterval = 10;
@@ -55,6 +57,7 @@ public class SquadAI : MonoBehaviourPun
             }
             newSoldier.GetComponent<Soldier>().squad = this;
             newSoldier.GetComponent<NavMeshAgent>().Warp(transform.position);
+            newSoldier.GetComponent<Soldier>().navAgent.isStopped = false;
     	}
     	soldiers = tempArray;
     }
@@ -83,19 +86,9 @@ public class SquadAI : MonoBehaviourPun
     {
         if (Time.frameCount%frameInterval != 0) return;
 
-        if (leader.navAgent.remainingDistance != 0f && leader.navAgent.remainingDistance <= stoppingDistance && !leader.attacking && !leader.navAgent.pathPending)
+        if (leader.navAgent.remainingDistance != 0f && leader.navAgent.remainingDistance <= stoppingDistance && !leader.navAgent.pathPending)
         {
-            if (AI_FindCheckpoints && !leader.selected)
-            {
-                if ((!inCheckpoint || (Time.frameCount+orderOfArrival)%checkpointCheckInterval == 0) && aggression != 0) Checkpoint(aggression);
-                else if ((Time.frameCount+orderOfArrival)%wanderInterval == 0) Wander();
-                else {
-                    for (int i = 0; i < soldiers.Length; i++)
-                    {
-                        if (soldiers[i].navAgent.remainingDistance <= trueStoppingDistance) soldiers[i].navAgent.isStopped = true;
-                    }
-                }
-            } else if (AI_Wander && (Time.frameCount+orderOfArrival)%wanderInterval == 0) {
+            if (AI_Wander && (Time.frameCount+orderOfArrival)%wanderInterval == 0) {
                 Wander();
             } else {
                 for (int i = 0; i < soldiers.Length; i++)
@@ -116,83 +109,9 @@ public class SquadAI : MonoBehaviourPun
         StartAgents();
     }
 
-    public void DetectedEnemy(Vector3 enemy)
-    {
-        for (int i =  0; i < soldiers.Length; i++)
-        {
-            if (soldiers[i].target == null)
-            {
-                soldiers[i].destination = enemy;
-                lastDestination = enemy;
-                soldiers[i].navAgent.isStopped = false;
-            }
-        }
-    }
-
-    public void LostEnemy(Soldier soldier)
-    {
-        Transform enemy = null;
-        for (int i =  0; i < soldiers.Length; i++)
-        {
-            if (soldiers[i].transform.GetChild(0).GetComponent<DetectEnemy>().enemies.Count != 0)
-            {
-                enemy = soldiers[i].target;
-                break;
-            }
-        }
-
-        if (enemy != null && aggression != 0 && !leader.retreating)
-        {
-            lastDestination = enemy.position;
-            soldier.destination = enemy.position;
-            soldier.navAgent.isStopped = false;
-        } else {
-            if (enemy == null) for (int i = 0; i < soldiers.Length; i++) { soldiers[i].retreating = false; }
-            if (leader.selected) return;
-            if (AI_FindCheckpoints) Checkpoint(aggression);
-            else Wander();
-        }
-    }
-
-    void Checkpoint(int aggro)
-    {
-        Checkpoint closest = null;
-        for (int i = 0; i < checkpoints.Length; i++)
-        {
-            if (aggro == 1 && (checkpoints[i].control == -1 || checkpoints[i].control == 0)) continue;
-            if (aggro == 2 && checkpoints[i].control == 1) continue;
-
-            if (closest == null)
-            {
-                closest = checkpoints[i];
-                continue;
-            }
-            if (Vector3.Distance(closest.transform.position, leader.transform.position) > Vector3.Distance(checkpoints[i].transform.position, leader.transform.position)) closest = checkpoints[i];
-        }
-
-        if (closest == currentCheckpoint) return;
-
-        if (aggro == 2 && closest == null)
-        {
-            Checkpoint(1);
-            return;
-        } else if (aggro == 1 && closest == null)
-        {
-            Wander();
-            return;
-        }
-
-        for (int i =  0; i < soldiers.Length; i++)
-        {
-            lastDestination = closest.transform.position;
-            soldiers[i].destination = closest.transform.position;// + randomOffset;
-            soldiers[i].navAgent.isStopped = false;
-        }
-    }
-
     public void EnterCheckpoint(Soldier soldier, Checkpoint checkpoint)
     {
-        if (soldier == leader)
+        if (soldier == soldiers[0])
         {
             inCheckpoint = true;
             currentCheckpoint = checkpoint;
@@ -201,7 +120,7 @@ public class SquadAI : MonoBehaviourPun
 
     public void ExitCheckpoint(Soldier soldier)
     {
-        if (soldier == leader)
+        if (soldier == soldiers[0])
         {
             inCheckpoint = false;
             currentCheckpoint = null;
@@ -210,7 +129,7 @@ public class SquadAI : MonoBehaviourPun
 
     void Wander()
     {
-        float radius = leader.selected?maxSelectedWanderDistance:maxWanderDistance;
+        float radius = soldiers[0].selected?maxSelectedWanderDistance:maxWanderDistance;
         Vector3 origin = lastDestination;
         if (currentCheckpoint != null)
         {
@@ -228,11 +147,6 @@ public class SquadAI : MonoBehaviourPun
         }
     }
 
-    public void AlertGunshot(Vector3 shooter)
-    {
-        spawner.Gunshot(shooter);
-    }
-
     public void HighlightSoldiers(Bounds selectionBounds, Camera cam)
     {
         bool selected = false;
@@ -245,7 +159,7 @@ public class SquadAI : MonoBehaviourPun
             }
         }
 
-        if (!selected && !leader.highlighted) return;
+        if (!selected && !soldiers[0].highlighted) return;
 
         for (int i = 0; i < soldiers.Length; i++)
         {
@@ -256,101 +170,35 @@ public class SquadAI : MonoBehaviourPun
 
     public void SelectSoldiers(bool direct = false)
     {
-        if (leader.highlighted || direct)
+        if (soldiers[0].highlighted || direct)
         {
             spawner.soldiersSelected = true;
             for (int i = 0; i < soldiers.Length; i++)
             {
                 soldiers[i].Select();
-                soldiers[i].navAgent.isStopped = true;
             } 
         }
     }
 
     public void DeselectSoldiers()
     {
-        for (int i =  0; i < soldiers.Length; i++)
+        for (int i = 0; i < soldiers.Length; i++)
         {
             soldiers[i].Deselect();
-            soldiers[i].navAgent.isStopped = false;
         } 
     }
 
     public void MoveSelectedSoldiers(Vector3 newDestination)
     {
-        if (!leader.selected) return;
+        if (!soldiers[0].selected) return;
         for (int i = 0; i < soldiers.Length; i++)
         {
             lastDestination = newDestination;
             soldiers[i].destination = Vector3.zero;
             soldiers[i].navAgent.SetDestination(newDestination);
             soldiers[i].navAgent.isStopped = false;
-            if (leader.attacking) soldiers[i].retreating = true;
+            soldiers[i].retreating = true;
         } 
-    }
-
-    public void Gunshot(Vector3 shooter)
-    {
-        if (aggression == 0 || !AI_ExploreGunshots || leader.attacking || leader.selected)
-        {
-            return;
-        } else if (aggression == 1)
-        {
-            if (inCheckpoint)
-            {
-                if (currentCheckpoint.control == 0) return;
-            }
-
-            Checkpoint farthest = null;
-            for (int i = 0; i < checkpoints.Length; i++)
-            {  
-                if (checkpoints[i].control == -1 || checkpoints[i].control == 0) continue;
-
-                if (farthest == null)
-                {
-                    farthest = checkpoints[i];
-                    continue;
-                }
-                if (Vector3.Distance(farthest.transform.position, spawner.transform.position) < Vector3.Distance(checkpoints[i].transform.position, spawner.transform.position)) farthest = checkpoints[i];
-            }
-
-            if (farthest != null)
-            {
-                if (Vector3.Distance(shooter, spawner.transform.position) > Vector3.Distance(farthest.transform.position, spawner.transform.position) + farthest.radius) return;
-            }
-        }
-
-        for (int i =  0; i < soldiers.Length; i++)
-        {
-            lastDestination = shooter;
-            soldiers[i].destination = shooter;// + randomOffset;
-            soldiers[i].navAgent.isStopped = false;
-        }
-    }
-
-    void FindOthers()
-    {
-        GameObject[] squads = GameObject.FindGameObjectsWithTag("Squad");
-        newDestination = Vector3.zero;
-
-        //find and go to other soldiers
-        for (int i = 0; i < squads.Length; i++ )
-        {
-            if (squads[i] != gameObject)
-            {
-                newDestination = squads[i].GetComponent<SquadAI>().AveragePosition();;
-                break;
-            }
-        }
-
-        if (newDestination == Vector3.zero) newDestination = spawner.transform.position;
-
-        for (int i =  0; i < soldiers.Length; i++)
-        {
-            lastDestination = newDestination;
-            soldiers[i].destination = newDestination;// + randomOffset;
-            soldiers[i].navAgent.isStopped = false;
-        }
     }
 
     public void Despawn(Soldier deadSoldier)
@@ -358,12 +206,15 @@ public class SquadAI : MonoBehaviourPun
         size --;
         if (size == 0) Destroy(gameObject);
         Soldier[] tempArray = new Soldier[size];
+        int j = 0;
         for (int i = 0; i < soldiers.Length; i++)
         {
-            if (soldiers[i] == null) return;
-            if (soldiers[i] != deadSoldier) tempArray[i] = soldiers[i];
+            if (soldiers[i] == deadSoldier) {
+                j++;
+            } else {
+                tempArray[i-j] = soldiers[i];
+            }
         }
-
         soldiers = tempArray;
     }
 
